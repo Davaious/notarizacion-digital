@@ -1,0 +1,20 @@
+{
+    "documentTitle": "Contrato de Arrendamiento",
+    "dateNotarized": "2024-09-01",
+    "notary": {
+      "name": "Juan Pérez",
+      "licenseNumber": "123456789"
+    },
+    "participants": [
+      {
+        "name": "Ana Gómez",
+        "role": "Arrendador"
+      },
+      {
+        "name": "Carlos Martínez",
+        "role": "Arrendatario"
+      }
+    ],
+    "documentContent": "Este es un contrato de arrendamiento de bienes inmuebles..."
+  }
+  
