@@ -12,35 +12,57 @@ const App = () => {
 
   useEffect(() => {
     const loadBlockchainData = async () => {
-      const web3 = new Web3(Web3.givenProvider || "https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID");
-      const accounts = await web3.eth.requestAccounts();
-      setAccount(accounts[0]);
-
-      const networkId = await web3.eth.net.getId();
-      const networkData = DocumentNotarization.networks[networkId];
-      if (networkData) {
-        const deployedContract = new web3.eth.Contract(
-          DocumentNotarization.abi,
-          networkData.address
-        );
-        setContract(deployedContract);
-
-        const docs = await deployedContract.methods.getDocuments().call({
-          from: accounts[0],
-        });
-        setDocuments(docs);
-      } else {
-        window.alert("El contrato no está desplegado en la red.");
+      try {
+        const web3 = new Web3(Web3.givenProvider || "https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID");
+        const accounts = await web3.eth.requestAccounts();
+        setAccount(accounts[0]);
+  
+        const networkId = await web3.eth.net.getId();
+        const networkData = DocumentNotarization.networks[networkId];
+        
+        if (!Web3.givenProvider) {
+          window.alert("No se ha detectado un proveedor Web3. Asegúrate de que MetaMask esté instalado.");
+          return;
+        }
+        
+        if (networkData) {
+          const deployedContract = new web3.eth.Contract(
+            DocumentNotarization.abi,
+            networkData.address
+          );
+          setContract(deployedContract);
+  
+          const docs = await deployedContract.methods.getDocuments().call({
+            from: accounts[0],
+          });
+          setDocuments(docs);
+        } else {
+          window.alert("El contrato no está desplegado en la red.");
+        }
+      } catch (error) {
+        console.error("Error cargando datos del blockchain", error);
       }
     };
+    
     loadBlockchainData();
   }, []);
+  
 
   const notarizeDocument = async () => {
-    await contract.methods.notarizeDocument(documentHash).send({ from: account });
-    const docs = await contract.methods.getDocuments().call({ from: account });
-    setDocuments(docs);
+    if (!contract) {
+      console.error("El contrato no está disponible.");
+      return;
+    }
+  
+    try {
+      await contract.methods.notarizeDocument(documentHash).send({ from: account });
+      const docs = await contract.methods.getDocuments().call({ from: account });
+      setDocuments(docs);
+    } catch (error) {
+      console.error("Error al notarizar el documento", error);
+    }
   };
+  
 
   return (
     <div className="container">
